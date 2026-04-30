@@ -1,7 +1,10 @@
-FROM python:3.11
+FROM ubuntu:22.04
 
-WORKDIR /app
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    git \
+    vim \
+ && apt-get clean
 
-COPY . .
-
-CMD ["python", "app.py"]
+CMD ["bash"]
