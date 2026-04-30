@@ -1,5 +1,5 @@
 FROM quay.io/centos/centos:stream9
-
+RUN mkdir /abc
 # Set working directory
 WORKDIR /app
 
