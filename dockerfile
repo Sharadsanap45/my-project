@@ -1,43 +1,22 @@
+FROM quay.io/centos/centos:stream9
 
----
-- name: Deploy Python Docker App
-  hosts: all
-  become: true
+# Set working directory
+WORKDIR /app
 
-  vars:
-    image_name: my-python-app
-    container_name: my-python-container
+# Install Python and pip
+RUN dnf install -y python3 python3-pip && \
+    dnf clean all
 
-  tasks:
-    - name: Install required system packages
-      apt:
-        name:
-          - docker.io
-          - python3-pip
-        state: present
-        update_cache: yes
+# Copy requirements first
+COPY requirements.txt .
 
-    - name: Install Docker Python module
-      pip:
-        name: docker
+# Install Python dependencies
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-    - name: Start and enable Docker service
-      service:
-        name: docker
-        state: started
-        enabled: true
+# Copy app code
+COPY . .
 
-    - name: Build Docker image
-      community.docker.docker_image:
-        name: "{{ image_name }}"
-        build:
-          path: /path/to/your/app   # change this path
-        source: build
+# Run app
+CMD ["python3", "app.py"]
 
-    - name: Run Docker container
-      community.docker.docker_container:
-        name: "{{ container_name }}"
-        image: "{{ image_name }}"
-        state: started
-        ports:
-          - "5000:5000"
+      
