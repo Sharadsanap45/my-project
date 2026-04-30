@@ -1,0 +1,42 @@
+---
+- name: Deploy Python Docker App
+  hosts: all
+  become: true
+
+  vars:
+    image_name: my-python-app
+    container_name: my-python-container
+
+  tasks:
+    - name: Install required system packages
+      apt:
+        name:
+          - docker.io
+          - python3-pip
+        state: present
+        update_cache: yes
+
+    - name: Install Docker Python module
+      pip:
+        name: docker
+
+    - name: Start and enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Build Docker image
+      community.docker.docker_image:
+        name: "{{ image_name }}"
+        build:
+          path: /path/to/your/app   # change this path
+        source: build
+
+    - name: Run Docker container
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        image: "{{ image_name }}"
+        state: started
+        ports:
+          - "5000:5000"
